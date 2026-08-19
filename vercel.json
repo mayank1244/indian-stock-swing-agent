@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "name": "swingpulse",
+  "public": true,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "routes": [
+    {
+      "src": "/data/(.*)",
+      "dest": "/web/data/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/web/standalone.html"
+    }
+  ]
+}

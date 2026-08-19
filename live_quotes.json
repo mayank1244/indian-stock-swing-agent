@@ -1,0 +1,66 @@
+﻿{
+    "TRENT.NS":  {
+                     "price":  2953.0,
+                     "change":  0.37
+                 },
+    "TATAPOWER.NS":  {
+                         "price":  378.9,
+                         "change":  -0.55
+                     },
+    "JSWSTEEL.NS":  {
+                        "price":  1285.8,
+                        "change":  1.44
+                    },
+    "COALINDIA.NS":  {
+                         "price":  400.0,
+                         "change":  -1.70
+                     },
+    "TATASTEEL.NS":  {
+                         "price":  184.0,
+                         "change":  -0.81
+                     },
+    "SBIN.NS":  {
+                    "price":  1048.6,
+                    "change":  -0.42
+                },
+    "SUZLON.NS":  {
+                      "price":  46.77,
+                      "change":  -2.11
+                  },
+    "ICICIBANK.NS":  {
+                         "price":  1402.0,
+                         "change":  -0.71
+                     },
+    "RELIANCE.NS":  {
+                        "price":  1311.0,
+                        "change":  -0.83
+                    },
+    "RVNL.NS":  {
+                    "price":  223.5,
+                    "change":  -0.67
+                },
+    "HDFCBANK.NS":  {
+                        "price":  720.0,
+                        "change":  -0.41
+                    },
+    "PAYTM.NS":  {
+                     "price":  1583.5,
+                     "change":  2.41
+                 },
+    "SUNPHARMA.NS":  {
+                         "price":  1900.0,
+                         "change":  1.33
+                     },
+    "BHARTIARTL.NS":  {
+                          "price":  1922.0,
+                          "change":  -0.63
+                      },
+    "LT.NS":  {
+                  "price":  4041.3,
+                  "change":  -0.57
+              },
+    "BEL.NS":  {
+                   "price":  409.2,
+                   "change":  -0.68
+               }
+}
