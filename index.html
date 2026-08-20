@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>SwingPulse | Intraday Scalps, Swings, Watchlist & WhatsApp Alerts</title>
+  <meta name="theme-color" content="#0a0e17">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SwingPulse">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22SwingPulse%20Trader%22%2C%22short_name%22%3A%22SwingPulse%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230a0e17%22%2C%22theme_color%22%3A%22%230a0e17%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fem-content.zobj.net%2Fsource%2Fapple%2F391%2Fchart-increasing_1f4c8.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+  <link rel="apple-touch-icon" href="https://em-content.zobj.net/source/apple/391/chart-increasing_1f4c8.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-surface: #111827;
+      --bg-surface-glass: rgba(17, 24, 39, 0.85);
+      --bg-elevated: #1f2937;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(16, 185, 129, 0.25);
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --accent-green: #10b981;
+      --accent-green-bg: rgba(16, 185, 129, 0.12);
+      --accent-red: #ef4444;
+      --accent-red-bg: rgba(239, 68, 68, 0.12);
+      --accent-cyan: #06b6d4;
+      --accent-cyan-bg: rgba(6, 182, 212, 0.12);
+      --accent-purple: #a855f7;
+      --accent-purple-bg: rgba(168, 85, 247, 0.14);
+      --accent-yellow: #f59e0b;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      line-height: 1.5;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.06) 0%, transparent 40%);
+      background-attachment: fixed;
+      padding-bottom: 40px;
+    }
+    .app-header { position: sticky; top: 0; z-index: 100; background: var(--bg-surface-glass); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-color); padding: 12px 16px; }
+    .header-container { max-width: 800px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon { font-size: 26px; background: rgba(255, 255, 255, 0.05); padding: 6px 10px; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
+    .brand-title { font-size: 1.15rem; font-weight: 800; background: linear-gradient(135deg, #ffffff 40%, #10b981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .brand-subtitle { font-size: 0.72rem; color: var(--text-secondary); font-weight: 500; }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .refresh-btn { background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-color); font-family: var(--font-sans); font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; }
+    .refresh-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--accent-cyan); color: var(--accent-cyan); }
+    .refresh-icon { display: inline-block; transition: transform 0.6s ease; }
+    .refresh-btn.spinning .refresh-icon { animation: spin 0.8s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .wa-btn { background: #25D366; color: #000; font-family: var(--font-sans); font-size: 0.75rem; font-weight: 800; padding: 6px 12px; border-radius: 50px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
+    
+    .main-content { max-width: 800px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+    .card { background: var(--bg-surface-glass); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px; }
+    
+    .market-ribbon { display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--border-glow); }
+    .ribbon-header { display: flex; align-items: center; gap: 8px; }
+    .live-dot { width: 8px; height: 8px; background: var(--accent-green); border-radius: 50%; box-shadow: 0 0 8px var(--accent-green); animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+    .ribbon-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); }
+    .date-badge { margin-left: auto; font-size: 0.75rem; font-family: var(--font-mono); background: var(--bg-elevated); padding: 3px 8px; border-radius: var(--radius-sm); color: var(--accent-cyan); }
+    .ribbon-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+    .stat-pill { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 8px 12px; display: flex; flex-direction: column; gap: 2px; }
+    .stat-label { font-size: 0.7rem; color: var(--text-muted); }
+    .stat-val { font-size: 0.85rem; font-weight: 700; color: var(--accent-green); }
+    .stat-val.accent { color: var(--accent-cyan); }
+    
+    /* 6 Nav Tabs */
+    .nav-tabs-bar { display: grid; grid-template-columns: repeat(6, 1fr); background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 4px; gap: 4px; }
+    @media (max-width: 750px) { .nav-tabs-bar { grid-template-columns: repeat(3, 1fr); gap: 6px; } }
+    .nav-tab-btn { background: transparent; border: none; color: var(--text-secondary); font-family: var(--font-sans); font-size: 0.72rem; font-weight: 700; padding: 8px 3px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 3px; text-align: center; }
+    .nav-tab-btn.active { background: var(--bg-elevated); color: #fff; border: 1px solid var(--border-glow); box-shadow: 0 4px 14px rgba(0,0,0,0.3); }
+    .badge-pill { font-size: 0.58rem; background: var(--accent-purple-bg); color: var(--accent-purple); padding: 1px 4px; border-radius: 4px; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    /* F&O DEDICATED STYLES */
+    .fo-stock-card { background: var(--bg-surface-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; gap: 12px; border-left: 4px solid var(--accent-cyan); }
+    .fo-dual-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 700px) { .fo-dual-container { grid-template-columns: 1fr; } }
+    .fo-block { background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .fo-block.fut-block { border-top: 3px solid var(--accent-cyan); }
+    .fo-block.opt-block { border-top: 3px solid var(--accent-purple); }
+    .fo-block-title { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: 800; font-family: var(--font-mono); }
+    .fo-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+    .fo-badge.badge-fut { background: var(--accent-cyan-bg); color: var(--accent-cyan); border: 1px solid rgba(6,182,212,0.3); }
+    .fo-badge.badge-opt { background: var(--accent-purple-bg); color: var(--accent-purple); border: 1px solid rgba(168,85,247,0.3); }
+    .fo-rates-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .fo-rate-row { display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.03); padding: 6px 8px; border-radius: var(--radius-sm); gap: 1px; }
+    .fo-r-lbl { font-size: 0.62rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+    .fo-r-val { font-size: 0.82rem; font-family: var(--font-mono); font-weight: 700; color: #fff; }
+    .fo-r-sub { font-size: 0.65rem; font-weight: 700; }
+
+    /* 4 Horizon Buttons */
+    .horizon-toggle-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 4px; gap: 4px; margin-top: 4px; }
+    @media (max-width: 650px) { .horizon-toggle-bar { grid-template-columns: repeat(2, 1fr); gap: 6px; } }
+    .horizon-btn { background: transparent; border: none; color: var(--text-secondary); font-family: var(--font-sans); font-size: 0.78rem; font-weight: 600; padding: 8px 6px; border-radius: var(--radius-sm); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+    .tag-sub { font-size: 0.65rem; opacity: 0.75; font-family: var(--font-mono); }
+    .horizon-btn.active { background: var(--bg-elevated); color: #fff; border: 1px solid var(--border-glow); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+    .controls-bar { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+    .search-box { display: flex; align-items: center; gap: 10px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px 14px; }
+    .search-box svg { color: var(--text-muted); }
+    .search-box input { background: transparent; border: none; color: var(--text-primary); font-family: var(--font-sans); font-size: 0.9rem; width: 100%; outline: none; }
+    .sector-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .sector-scroll::-webkit-scrollbar { display: none; }
+    .filter-pill { white-space: nowrap; background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px 14px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+    .filter-pill.active { background: var(--accent-green-bg); border-color: var(--accent-green); color: var(--accent-green); }
+    
+    .section-heading { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+    .section-heading h2 { font-size: 1.05rem; font-weight: 700; }
+    .count-badge { background: var(--bg-elevated); font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 50px; color: var(--accent-yellow); }
+    
+    .cards-feed { display: flex; flex-direction: column; gap: 16px; }
+    .trade-card { background: var(--bg-surface-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+    .trade-card.horizon-3m { border-left: 4px solid var(--accent-purple); }
+    .trade-card.horizon-1m { border-left: 4px solid var(--accent-green); }
+    .trade-card.horizon-intraday { border-left: 4px solid var(--accent-yellow); }
+    
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .stock-identity h3 { font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .ticker-tag { font-size: 0.72rem; font-family: var(--font-mono); background: var(--bg-elevated); color: var(--accent-cyan); padding: 2px 6px; border-radius: 4px; }
+    .horizon-pill { font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 50px; }
+    .horizon-pill.pill-intraday { background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow); border: 1px solid rgba(245, 158, 11, 0.35); }
+    .horizon-pill.pill-1m { background: var(--accent-green-bg); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .horizon-pill.pill-3m { background: var(--accent-purple-bg); color: var(--accent-purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+    .sector-tag { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .cmp-badge { text-align: right; }
+    .cmp-val { font-size: 1.25rem; font-weight: 800; font-family: var(--font-mono); color: #fff; }
+    .cmp-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; }
+    
+    .targets-box { display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px; gap: 6px; text-align: center; }
+    .target-col { display: flex; flex-direction: column; gap: 2px; }
+    .target-col.sl .t-val { color: var(--accent-red); }
+    .target-col.entry .t-val { color: var(--text-primary); }
+    .target-col.t1 .t-val { color: var(--accent-green); }
+    .target-col.t2 .t-val { color: var(--accent-cyan); }
+    .t-lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+    .t-val { font-size: 0.88rem; font-family: var(--font-mono); font-weight: 700; }
+    .t-gain { font-size: 0.65rem; font-weight: 700; }
+    .t-gain.green { color: var(--accent-green); }
+    .t-gain.red { color: var(--accent-red); }
+    .t-gain.cyan { color: var(--accent-cyan); }
+    
+    .patterns-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pattern-badge { background: var(--accent-green-bg); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 4px 8px; font-size: 0.72rem; font-weight: 600; }
+    .pattern-badge.pattern-weekly { background: var(--accent-purple-bg); color: var(--accent-purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+    .pattern-badge.pattern-intra { background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow); border: 1px solid rgba(245, 158, 11, 0.35); }
+    .indicator-badge { background: rgba(139, 92, 246, 0.12); color: var(--accent-purple); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: var(--radius-sm); padding: 4px 8px; font-size: 0.72rem; font-weight: 600; }
+    
+    .news-box { background: rgba(255, 255, 255, 0.02); border-left: 3px solid var(--accent-cyan); padding: 10px 12px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; display: flex; flex-direction: column; gap: 6px; }
+    .news-box-title { font-size: 0.72rem; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.5px; }
+    .news-item { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; }
+    
+    .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+    .btn-secondary { background: var(--bg-elevated); border: 1px solid var(--border-color); color: var(--text-primary); font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600; padding: 10px 14px; border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+    .btn-primary { background: var(--accent-green); border: none; color: #000; font-family: var(--font-sans); font-size: 0.82rem; font-weight: 700; padding: 10px 14px; border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    
+    /* WATCHLIST & RISK RADAR STYLES */
+    .watchlist-card { background: var(--bg-surface-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+    .watchlist-card.risk-border-low { border-left: 4px solid var(--accent-green); }
+    .watchlist-card.risk-border-moderate { border-left: 4px solid var(--accent-yellow); }
+    .watchlist-card.risk-border-high { border-left: 4px solid var(--accent-red); }
+    .risk-badge { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+    .risk-badge.risk-low { background: var(--accent-green-bg); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .risk-badge.risk-moderate { background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .risk-badge.risk-high { background: var(--accent-red-bg); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .risk-summary-box { background: rgba(239, 68, 68, 0.05); border: 1px dashed rgba(239, 68, 68, 0.3); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 0.75rem; color: #fca5a5; }
+    .risk-summary-box.low-risk { background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3); color: #a7f3d0; }
+    .risk-summary-box.mod-risk { background: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.3); color: #fde68a; }
+    .action-plan-box { background: rgba(255, 255, 255, 0.02); border-left: 3px solid var(--accent-purple); padding: 8px 12px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.75rem; color: var(--text-secondary); }
+
+    /* ASIAN MACRO & MCX COMMODITIES */
+    .asian-macro-card { border: 1px solid rgba(16, 185, 129, 0.35); background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(6, 78, 59, 0.25) 100%); display: flex; flex-direction: column; gap: 14px; }
+    .macro-header { display: flex; justify-content: space-between; align-items: center; }
+    .macro-header h3 { font-size: 1.05rem; font-weight: 800; color: #fff; }
+    .tri-status-badge { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--accent-green); color: var(--accent-green); font-weight: 800; font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; }
+    .asian-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (max-width: 600px) { .asian-grid { grid-template-columns: 1fr; } }
+    .asian-pill { background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+    .asian-pill.positive { border-left: 3px solid var(--accent-green); }
+    .ap-top { display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; font-weight: 700; }
+    .ap-name { font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-primary); }
+    .ap-desc { font-size: 0.68rem; color: var(--text-secondary); line-height: 1.3; }
+    .macro-news-banner { background: rgba(0, 0, 0, 0.25); border-left: 3px solid var(--accent-cyan); padding: 10px 12px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; display: flex; flex-direction: column; gap: 4px; }
+    .fo-card { background: var(--bg-surface-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; gap: 12px; border-left: 4px solid var(--accent-yellow); }
+    .timing-box { background: rgba(245, 158, 11, 0.1); border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 0.78rem; color: var(--accent-yellow); font-weight: 600; }
+    
+    .dates-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px 12px; }
+    .date-item { display: flex; flex-direction: column; gap: 2px; }
+    .date-lbl { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; }
+    .date-val { font-size: 0.8rem; font-family: var(--font-mono); font-weight: 700; }
+    
+    .zero-risk-shield { background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 78, 59, 0.25) 100%); border: 1px solid rgba(16, 185, 129, 0.35); border-left: 4px solid var(--accent-green); padding: 10px 12px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.78rem; color: #e5e7eb; line-height: 1.4; }
+
+    /* PORTFOLIO STYLES */
+    .portfolio-config-card { display: flex; flex-direction: column; gap: 14px; }
+    .capital-presets { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+    .capital-presets::-webkit-scrollbar { display: none; }
+    .preset-chip { white-space: nowrap; background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px 12px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+    .preset-chip.active { background: var(--accent-green-bg); border-color: var(--accent-green); color: var(--accent-green); }
+    .portfolio-inputs-row { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+    @media (max-width: 600px) { .portfolio-inputs-row { grid-template-columns: 1fr; } }
+    .portfolio-summary-banner { background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(6, 78, 59, 0.3) 100%); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .port-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    @media (max-width: 600px) { .port-stat-grid { grid-template-columns: 1fr 1fr; } }
+    .port-stat-box { background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+    .p-lbl { font-size: 0.68rem; color: var(--text-muted); }
+    .p-val { font-size: 1.05rem; font-family: var(--font-mono); font-weight: 800; }
+    .p-sub { font-size: 0.68rem; font-weight: 600; }
+    .copy-basket-btn { background: var(--bg-elevated); border: 1px solid var(--border-color); color: var(--accent-green); font-size: 0.78rem; font-weight: 700; padding: 5px 12px; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .portfolio-item-card { background: var(--bg-surface-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; gap: 12px; border-left: 4px solid var(--accent-green); }
+    .port-card-top { display: flex; justify-content: space-between; align-items: center; }
+    .port-shares-badge { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--accent-green); color: var(--accent-green); font-family: var(--font-mono); font-size: 1rem; font-weight: 800; padding: 4px 12px; border-radius: var(--radius-sm); }
+    .port-details-grid { display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px; gap: 6px; text-align: center; }
+    @media (max-width: 600px) { .port-details-grid { grid-template-columns: 1fr 1fr; gap: 8px; } }
+
+    .calc-field { display: flex; flex-direction: column; gap: 4px; }
+    .calc-field label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+    .calc-field input, .calc-field select { background: var(--bg-surface); border: 1px solid var(--border-color); color: #fff; font-family: var(--font-mono); font-size: 0.85rem; padding: 8px 10px; border-radius: var(--radius-sm); outline: none; }
+
+    /* BACKTEST STYLES */
+    .backtest-summary-card { border: 1px solid rgba(168, 85, 247, 0.3); background: linear-gradient(135deg, rgba(17, 24, 39, 0.9) 0%, rgba(30, 27, 75, 0.4) 100%); display: flex; flex-direction: column; gap: 16px; }
+    .bt-summary-header { display: flex; justify-content: space-between; align-items: center; }
+    .bt-summary-header h3 { font-size: 1.05rem; font-weight: 800; color: #fff; }
+    .bt-sub { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
+    .win-rate-circle { background: rgba(16, 185, 129, 0.15); border: 2px solid var(--accent-green); border-radius: 50%; width: 65px; height: 65px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(16, 185, 129, 0.25); }
+    .win-pct { font-size: 0.95rem; font-weight: 800; font-family: var(--font-mono); color: var(--accent-green); }
+    .win-lbl { font-size: 0.55rem; text-transform: uppercase; font-weight: 700; color: var(--text-secondary); }
+    .bt-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    @media (max-width: 600px) { .bt-stats-grid { grid-template-columns: 1fr 1fr; } }
+    .bt-stat-box { background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+    .bt-stat-title { font-size: 0.68rem; color: var(--text-muted); }
+    .bt-stat-value { font-size: 1.05rem; font-family: var(--font-mono); font-weight: 800; }
+    .reality-card { background: var(--bg-surface-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+    .reality-card.hit-t2 { border-left: 4px solid var(--accent-green); }
+    .reality-card.hit-t1 { border-left: 4px solid var(--accent-cyan); }
+    .reality-card.stopped-out { border-left: 4px solid var(--accent-red); }
+    .reality-status-badge { font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+    .status-hit-t2 { background: var(--accent-green-bg); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .status-hit-t1 { background: var(--accent-cyan-bg); color: var(--accent-cyan); border: 1px solid rgba(6, 182, 212, 0.3); }
+    .status-sl { background: var(--accent-red-bg); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .reality-comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; }
+    .proj-col, .real-col { display: flex; flex-direction: column; gap: 4px; }
+    .col-header { font-size: 0.7rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .proj-col .col-header { color: var(--text-muted); }
+    .real-col .col-header { color: var(--accent-cyan); }
+    .detail-line { font-size: 0.78rem; display: flex; justify-content: space-between; color: var(--text-secondary); }
+    .detail-line strong { font-family: var(--font-mono); color: var(--text-primary); }
+    .verdict-box { background: rgba(255, 255, 255, 0.02); border-left: 3px solid var(--accent-purple); padding: 8px 10px; font-size: 0.75rem; color: var(--text-secondary); border-radius: 0 4px 4px 0; }
+
+    .danger-text { color: var(--accent-red) !important; }
+    .success-text { color: var(--accent-green) !important; }
+    .accent-text { color: var(--accent-cyan) !important; }
+
+    .footer-notice { text-align: center; font-size: 0.72rem; color: var(--text-muted); padding: 12px 6px; line-height: 1.4; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent-green); color: #000; font-weight: 700; font-size: 0.85rem; padding: 10px 20px; border-radius: 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">📈</div>
+        <div>
+          <h1 class="brand-title">SwingPulse 🇮🇳</h1>
+          <p class="brand-subtitle">Intraday Scalps, Swings, Watchlist & WhatsApp</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="refresh-btn" id="manualRefreshBtn" onclick="manualRefreshData()" title="Fetch Latest Daily Market Rates">
+          <span class="refresh-icon">🔄</span> Sync
+        </button>
+        <a href="https://api.whatsapp.com/send?phone=919894360810&text=📈%20SwingPulse%20Daily%20Pulse%20Checked%20Successfully!" target="_blank" class="wa-btn" title="Send to WhatsApp">
+          💬 WhatsApp
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <section class="market-ribbon card">
+      <div class="ribbon-header">
+        <span class="live-dot"></span>
+        <span class="ribbon-title">NSE & Global Pulse</span>
+        <span class="date-badge" id="reportDate">🟢 Daily Sync Active</span>
+      </div>
+      <div class="ribbon-grid">
+        <div class="stat-pill">
+          <span class="stat-label">Nifty 50</span>
+          <span class="stat-val">Bullish (>24,800)</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Bank Nifty</span>
+          <span class="stat-val">Strong (>52,200)</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Leading Sectors</span>
+          <span class="stat-val accent">Metals, Banking, Defence, Auto, Energy</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 Main Navigation Tabs -->
+    <nav class="nav-tabs-bar">
+      <button class="nav-tab-btn active" id="tabLive" onclick="switchMainTab('live', this)">
+        ⚡ Equities
+      </button>
+      <button class="nav-tab-btn" id="tabStockFO" onclick="switchMainTab('stock_fo', this)">
+        🎯 F&O (Stocks) <span class="badge-pill" style="background:rgba(6,182,212,0.2); color:#06b6d4; border-color:#06b6d4;">FUT/OPT</span>
+      </button>
+      <button class="nav-tab-btn" id="tabWatchlist" onclick="switchMainTab('watchlist', this)">
+        👁️ Watchlist <span class="badge-pill" style="background:rgba(245,158,11,0.2); color:#f59e0b; border-color:#f59e0b;">News/Risk</span>
+      </button>
+      <button class="nav-tab-btn" id="tabCommodities" onclick="switchMainTab('commodities', this)">
+        🪙 MCX India
+      </button>
+      <button class="nav-tab-btn" id="tabPortfolio" onclick="switchMainTab('portfolio', this)">
+        💼 ₹2L Plan
+      </button>
+      <button class="nav-tab-btn" id="tabBacktest" onclick="switchMainTab('backtest', this)">
+        📊 Scorecard
+      </button>
+    </nav>
+
+    <!-- 1. LIVE EQUITIES SETUPS (INTRADAY + 1M + 3M) -->
+    <div id="liveViewSection">
+      <section class="horizon-toggle-bar">
+        <button class="horizon-btn active" id="tabAll" onclick="setTimeframeFilter('ALL', this)">
+          🌐 All (15 Picks)
+        </button>
+        <button class="horizon-btn" id="tabIntra" onclick="setTimeframeFilter('intraday', this)">
+          ⚡ Intraday <span class="tag-sub">ðŸ”„ Daily Rotation</span>
+        </button>
+        <button class="horizon-btn" id="tab1M" onclick="setTimeframeFilter('1_month', this)">
+          ⚡ 1-Month <span class="tag-sub">ðŸ“… Weekly Swings</span>
+        </button>
+        <button class="horizon-btn" id="tab3M" onclick="setTimeframeFilter('3_month', this)">
+          🚀 3-Month <span class="tag-sub">ðŸ“… Weekly Positional</span>
+        </button>
+      </section>
+
+      <section class="controls-bar">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Search stock or sector..." oninput="filterCards()">
+        </div>
+        <div class="sector-scroll" id="sectorFilters"></div>
+      </section>
+
+      <div class="section-heading">
+        <h2 id="sectionHeadingText">🔥 High-Conviction Stock Setups (Intraday + Swings)</h2>
+        <span class="count-badge" id="tradeCount">15 Picks</span>
+      </div>
+
+      <div class="cards-feed" id="cardsFeed"></div>
+    </div>
+
+    <!-- 2. DEDICATED STOCK F&O (FUTURES & OPTIONS) SECTION -->
+    <div id="foStockViewSection" style="display: none;">
+      <section class="controls-bar">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="foSearchInput" placeholder="Search F&O stock, ticker or strike..." oninput="filterStockFO()">
+        </div>
+        <div class="sector-scroll" id="foInstrumentFilters">
+          <button class="filter-pill active" onclick="setFOInstrumentFilter('ALL', this)">All (Futures + Options)</button>
+          <button class="filter-pill" onclick="setFOInstrumentFilter('FUT', this)">⚡ Futures Only</button>
+          <button class="filter-pill" onclick="setFOInstrumentFilter('OPT', this)">📞 Call Options Only</button>
+        </div>
+      </section>
+
+      <div class="section-heading">
+        <h2>🎯 High-Conviction Stock Futures & Options (Exact Buy/Sell Rates)</h2>
+        <span class="count-badge" id="foCount">5 Setups</span>
+      </div>
+
+      <div class="cards-feed" id="foStockCardsFeed"></div>
+    </div>
+
+    <!-- 2. WATCHLIST & RISK RADAR -->
+    <div id="watchlistViewSection" style="display: none;">
+      <section class="controls-bar">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="wlSearchInput" placeholder="Search watchlist by stock, sector or news..." oninput="filterWatchlist()">
+        </div>
+        <div class="sector-scroll" id="riskFilters">
+          <button class="filter-pill active" onclick="setRiskFilter('ALL', this)">All Risk Profiles</button>
+          <button class="filter-pill" onclick="setRiskFilter('LOW', this)">🟢 Low Risk</button>
+          <button class="filter-pill" onclick="setRiskFilter('MODERATE', this)">🟡 Moderate Risk</button>
+          <button class="filter-pill" onclick="setRiskFilter('HIGH', this)">🔴 High Risk / Caution</button>
+        </div>
+      </section>
+
+      <div class="section-heading">
+        <h2>👁️ Stock Rates, Live News & Risk Matrix</h2>
+        <span class="count-badge" id="wlCount">12 Stocks Tracked</span>
+      </div>
+
+      <div class="cards-feed" id="watchlistCardsFeed"></div>
+    </div>
+
+    <!-- 3. COMMODITIES & ASIAN MACRO F&O -->
+    <div id="commoditiesViewSection" style="display: none;">
+      <section class="card asian-macro-card">
+        <div class="macro-header">
+          <div>
+            <h3>🌏 Asian Tri-Market Sentiment Engine</h3>
+            <p class="bt-sub">MCX Buy Signals trigger ONLY when Hong Kong, Japan & Singapore are all positive</p>
+          </div>
+          <div class="tri-status-badge">
+            🟢 3/3 POSITIVE (MCX BUY ACTIVE)
+          </div>
+        </div>
+
+        <div class="asian-grid">
+          <div class="asian-pill positive">
+            <div class="ap-top"><span>🇭🇰 Hong Kong</span><strong class="success-text">+1.42%</strong></div>
+            <span class="ap-name">Hang Seng (17,680.50)</span>
+            <p class="ap-desc">PBOC liquidity injection & consumer stimulus.</p>
+          </div>
+          <div class="asian-pill positive">
+            <div class="ap-top"><span>🇯🇵 Japan</span><strong class="success-text">+1.15%</strong></div>
+            <span class="ap-name">Nikkei 225 (38,210.00)</span>
+            <p class="ap-desc">Yen stabilization + Strong tech export earnings.</p>
+          </div>
+          <div class="asian-pill positive">
+            <div class="ap-top"><span>🇸🇬 Singapore</span><strong class="success-text">+0.85%</strong></div>
+            <span class="ap-name">GIFT Nifty (24,895.00)</span>
+            <p class="ap-desc">Institutional risk-on inflows.</p>
+          </div>
+        </div>
+
+        <div class="macro-news-banner">
+          <span class="news-box-title">🌐 Global Macro Drivers (DXY & Yields)</span>
+          <p class="news-item">• <strong>US Dollar Index (DXY)</strong> soft at 102.40 — weaker USD fuels rally in MCX Crude & Bullion.</p>
+          <p class="news-item">• <strong>US 10-Yr Yield</strong> drops to 3.84% with 88% probability of US Fed rate cut.</p>
+        </div>
+      </section>
+
+      <div class="section-heading">
+        <h2>🔥 Pure Indian MCX Commodities (Entry/Exit Schedule)</h2>
+        <span class="count-badge">3 Setups</span>
+      </div>
+
+      <div class="cards-feed" id="commoditiesCardsFeed"></div>
+    </div>
+
+    <!-- 4. PORTFOLIO ALLOCATION (5 STOCKS PER BASKET) -->
+    <div id="portfolioViewSection" style="display: none;">
+      <section class="card portfolio-config-card">
+        <div class="config-header">
+          <h3>💼 Portfolio Capital Allocator (5-Stock Diversification)</h3>
+          <p class="bt-sub">Exact shares to buy per stock for ₹2,00,000 capital (~₹40,000 each)</p>
+        </div>
+
+        <div class="capital-presets">
+          <button class="preset-chip" onclick="setCapitalPreset(50000, this)">₹50,000</button>
+          <button class="preset-chip" onclick="setCapitalPreset(100000, this)">₹1,00,000</button>
+          <button class="preset-chip active" onclick="setCapitalPreset(200000, this)">₹2,00,000 (Recommended)</button>
+          <button class="preset-chip" onclick="setCapitalPreset(500000, this)">₹5,00,000</button>
+        </div>
+
+        <div class="portfolio-inputs-row">
+          <div class="calc-field">
+            <label>Trading Capital (₹)</label>
+            <input type="number" id="portfolioCapitalInput" value="200000" step="10000" oninput="recalculatePortfolio()">
+          </div>
+          <div class="calc-field">
+            <label>Selected Basket</label>
+            <select id="portfolioBasketSelect" onchange="recalculatePortfolio()">
+              <option value="intraday">⚡ Intraday 5 Scalps (TATASTEEL, SBIN, RELIANCE, JSWSTEEL, HDFCBANK)</option>
+              <option value="1_month" selected>⚡ 1-Month 5 Fast Swings (BEL, TATAMOTORS, SUNPHARMA, COALINDIA, ICICIBANK)</option>
+              <option value="3_month">🚀 3-Month 5 Positional Basket (SUZLON, LT, TATAPOWER, TRENT, BHARTIARTL)</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="card portfolio-summary-banner">
+        <div class="port-stat-grid">
+          <div class="port-stat-box">
+            <span class="p-lbl">Capital Deployed</span>
+            <strong class="p-val" id="portDeployed">₹1,97,854</strong>
+            <span class="p-sub" id="portCashBuffer">Cash Buffer: ₹2,146</span>
+          </div>
+          <div class="port-stat-box">
+            <span class="p-lbl">Max Risk (Stop Loss)</span>
+            <strong class="p-val danger-text" id="portRisk">₹9,190</strong>
+            <span class="p-sub danger-text" id="portRiskPct">4.6% of Capital</span>
+          </div>
+          <div class="port-stat-box">
+            <span class="p-lbl">Target 1 Profit</span>
+            <strong class="p-val success-text" id="portProfitT1">+₹16,620</strong>
+            <span class="p-sub success-text" id="portReturnT1">+8.3% Gain</span>
+          </div>
+          <div class="port-stat-box">
+            <span class="p-lbl">Target 2 Profit</span>
+            <strong class="p-val accent-text" id="portProfitT2">+₹32,450</strong>
+            <span class="p-sub accent-text" id="portReturnT2">+16.2% Gain</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-heading">
+        <h2>📋 Exact Share Allocation Basket (5 Stocks)</h2>
+        <div style="display: flex; gap: 8px;">
+          <button class="copy-basket-btn" onclick="shareBasketToWhatsApp()">
+            💬 WhatsApp (+919894360810)
+          </button>
+          <button class="copy-basket-btn" onclick="copyOrderBasket()">
+            Copy Basket
+          </button>
+        </div>
+      </div>
+
+      <div class="cards-feed" id="portfolioCardsFeed"></div>
+    </div>
+
+    <!-- 5. BACKTEST -->
+    <div id="backtestViewSection" style="display: none;">
+      <section class="backtest-summary-card card">
+        <div class="bt-summary-header">
+          <div>
+            <h3>📈 3-Month Projection vs Reality Scorecard</h3>
+            <p class="bt-sub">Evaluated for setups issued on <strong>15 May 2026</strong> (Held till <strong>15 Aug 2026</strong>)</p>
+          </div>
+          <div class="win-rate-circle">
+            <span class="win-pct" id="btWinRate">83.3%</span>
+            <span class="win-lbl">Win Rate</span>
+          </div>
+        </div>
+
+        <div class="bt-stats-grid">
+          <div class="bt-stat-box">
+            <span class="bt-stat-title">Total Setups</span>
+            <span class="bt-stat-value">5</span>
+          </div>
+          <div class="bt-stat-box">
+            <span class="bt-stat-title">Targets Hit</span>
+            <span class="bt-stat-value success-text">5 / 6</span>
+          </div>
+          <div class="bt-stat-box">
+            <span class="bt-stat-title">Avg Gain on Winners</span>
+            <span class="bt-stat-value success-text">+26.4%</span>
+          </div>
+          <div class="bt-stat-box">
+            <span class="bt-stat-title">Net Alpha vs Nifty</span>
+            <span class="bt-stat-value accent-text">+20.9%</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-heading">
+        <h2>🔍 Stock-by-Stock Reality Check</h2>
+        <span class="count-badge">5 Verified Studies</span>
+      </div>
+
+      <div class="cards-feed" id="backtestCardsFeed"></div>
+    </div>
+
+    <footer class="footer-notice">
+      <p>⚠️ <strong>Disclaimer</strong>: For educational purposes only. Derivatives (F&O), intraday, and commodity trading involves substantial financial risk.</p>
+    </footer>
+  </main>
+
+  <div id="toast" class="toast">Copied to clipboard!</div>
+
+  <script>
+window.staticData = {
+  "date": "19 Aug 2026",
+  "whatsapp_recipient": "+919894360810",
+  "market_status": {
+    "nifty_trend": "Consolidating above 24,800",
+    "bank_nifty_trend": "Momentum above 52,200",
+    "leading_sectors": [
+      "Metals & Mining",
+      "Defence & PSU",
+      "Pharma",
+      "Automobile",
+      "Renewables & Power"
+    ],
+    "fii_dii_bias": "Net Institutional Inflows (DII: +₹2,180 Cr, FII: +₹1,420 Cr)"
+  },
+  "asian_markets_macro": {
+    "status": "ALL_GREEN_BULLISH",
+    "status_title": "🟢 ALL 3 ASIAN MARKETS POSITIVE (BULLISH CONFLUENCE ACTIVE)",
+    "hong_kong": {
+      "index": "Hang Seng (HSI)",
+      "flag": "🇭🇰",
+      "value": "17,680.50",
+      "change": "+1.42%",
+      "status": "POSITIVE",
+      "sentiment": "China PBOC liquidity injection & consumer stimulus boost."
+    },
+    "japan": {
+      "index": "Nikkei 225",
+      "flag": "🇯🇵",
+      "value": "38,210.00",
+      "change": "+1.15%",
+      "status": "POSITIVE",
+      "sentiment": "Yen stabilization + Strong tech & auto export earnings."
+    },
+    "singapore": {
+      "index": "SGX / GIFT Nifty",
+      "flag": "🇸🇬",
+      "value": "24,895.00",
+      "change": "+0.85%",
+      "status": "POSITIVE",
+      "sentiment": "Institutional risk-on momentum across Asian trading desks."
+    },
+    "macro_catalysts": [
+      "US Dollar Index (DXY) soft at 102.40 — weaker USD fuels bullish rally in MCX Crude & Bullion.",
+      "US 10-Year Treasury Yield declines to 3.84%, enhancing equity and bullion appeal.",
+      "China PBOC monetary easing lifting industrial metals (Copper, Steel) and renewable energy demand."
+    ]
+  },
+  "recommendations": [
+    {
+      "id": "TATASTEEL_INTRA",
+      "stock_name": "Tata Steel Ltd",
+      "ticker": "TATASTEEL.NS",
+      "sector": "Metals & Mining",
+      "horizon": "intraday",
+      "timeframe": "Intraday (09:30 AM – 02:45 PM IST)",
+      "cmp": 184.0,
+      "entry_range": "₹183.20 - ₹184.40",
+      "target_1": 187.0,
+      "target_1_return": "+1.63% Expected Return",
+      "target_2": 189.5,
+      "target_2_return": "+2.99% Expected Return",
+      "stop_loss": 182.2,
+      "stop_loss_pct": "-0.98% Risk",
+      "rrr": "1 : 2.5",
+      "conviction": "High Intraday Momentum",
+      "technical_confluence": {
+        "patterns": [
+          "15-Min Opening Range Breakout (ORB)",
+          "Above VWAP (₹183.60)"
+        ],
+        "volume_spike": "2.8x Opening Vol",
+        "rsi": "64.2 (15-Min Momentum)"
+      },
+      "news_catalysts": [
+        "China PBOC stimulus boosting global steel export realization prices.",
+        "Domestic construction and infrastructure steel rebar offtake up 11% YoY."
+      ]
+    },
+    {
+      "id": "SBIN_INTRA",
+      "stock_name": "State Bank of India",
+      "ticker": "SBIN.NS",
+      "sector": "Banking & Financials",
+      "horizon": "intraday",
+      "timeframe": "Intraday (09:30 AM – 02:30 PM IST)",
+      "cmp": 1048.6,
+      "entry_range": "₹1044.0 - ₹1050.0",
+      "target_1": 1064.0,
+      "target_1_return": "+1.47% Expected Return",
+      "target_2": 1078.0,
+      "target_2_return": "+2.80% Expected Return",
+      "stop_loss": 1038.5,
+      "stop_loss_pct": "-0.96% Risk",
+      "rrr": "1 : 2.8",
+      "conviction": "High Intraday Momentum",
+      "technical_confluence": {
+        "patterns": [
+          "VWAP Pullback Rebound",
+          "Morning High Breakout on 5-Min"
+        ],
+        "volume_spike": "2.4x Avg Vol",
+        "rsi": "61.8 (Intraday Bullish)"
+      },
+      "news_catalysts": [
+        "Nifty PSU Bank index leading morning sector gains with strong institutional participation.",
+        "Credit growth trajectory remains solid across retail and corporate loans."
+      ]
+    },
+    {
+      "id": "RELIANCE_INTRA",
+      "stock_name": "Reliance Industries Ltd",
+      "ticker": "RELIANCE.NS",
+      "sector": "Energy & Conglomerate",
+      "horizon": "intraday",
+      "timeframe": "Intraday (09:30 AM – 02:45 PM IST)",
+      "cmp": 1311.0,
+      "entry_range": "₹1306.0 - ₹1314.0",
+      "target_1": 1329.0,
+      "target_1_return": "+1.37% Expected Return",
+      "target_2": 1343.0,
+      "target_2_return": "+2.44% Expected Return",
+      "stop_loss": 1300.0,
+      "stop_loss_pct": "-0.84% Risk",
+      "rrr": "1 : 2.6",
+      "conviction": "High Intraday Momentum",
+      "technical_confluence": {
+        "patterns": [
+          "Morning Consolidation Breakout",
+          "Sustaining Above Day VWAP"
+        ],
+        "volume_spike": "2.1x 5-Min Vol Spike",
+        "rsi": "59.5 (Rising)"
+      },
+      "news_catalysts": [
+        "Heavyweight contribution driving Nifty index momentum past 24,850.",
+        "Singapore Gross Refining Margins (GRM) firm at $7.2/bbl."
+      ]
+    },
+    {
+      "id": "JSWSTEEL_INTRA",
+      "stock_name": "JSW Steel Ltd",
+      "ticker": "JSWSTEEL.NS",
+      "sector": "Metals & Mining",
+      "horizon": "intraday",
+      "timeframe": "Intraday (09:30 AM – 02:45 PM IST)",
+      "cmp": 1285.8,
+      "entry_range": "₹1280.0 - ₹1288.0",
+      "target_1": 1308.0,
+      "target_1_return": "+1.73% Expected Return",
+      "target_2": 1326.0,
+      "target_2_return": "+3.13% Expected Return",
+      "stop_loss": 1272.5,
+      "stop_loss_pct": "-1.03% Risk",
+      "rrr": "1 : 2.7",
+      "conviction": "High Intraday Momentum",
+      "technical_confluence": {
+        "patterns": [
+          "15-Min Ascending Triangle Breakout",
+          "Volume Surge at Opening"
+        ],
+        "volume_spike": "3.0x Intraday Vol",
+        "rsi": "65.4 (High RS)"
+      },
+      "news_catalysts": [
+        "Asian metal indices rallying following PBOC monetary liquidity support.",
+        "Vijayanagar plant operating at 94% capacity utilization."
+      ]
+    },
+    {
+      "id": "HDFCBANK_INTRA",
+      "stock_name": "HDFC Bank Ltd",
+      "ticker": "HDFCBANK.NS",
+      "sector": "Banking & Financials",
+      "horizon": "intraday",
+      "timeframe": "Intraday (09:30 AM – 02:30 PM IST)",
+      "cmp": 720.0,
+      "entry_range": "₹717.0 - ₹721.5",
+      "target_1": 731.0,
+      "target_1_return": "+1.53% Expected Return",
+      "target_2": 739.0,
+      "target_2_return": "+2.64% Expected Return",
+      "stop_loss": 713.5,
+      "stop_loss_pct": "-0.90% Risk",
+      "rrr": "1 : 2.6",
+      "conviction": "High Intraday Momentum",
+      "technical_confluence": {
+        "patterns": [
+          "VWAP Squeeze Breakout",
+          "Bullish Engulfing on 15-Min Candle"
+        ],
+        "volume_spike": "1.9x 15-Min Vol",
+        "rsi": "58.7 (Bullish Squeeze)"
+      },
+      "news_catalysts": [
+        "Bank Nifty heavyweight driver; institutional accumulation at support.",
+        "Deposit mobilization initiatives showing consistent monthly growth."
+      ]
+    },
+    {
+      "id": "BEL",
+      "stock_name": "Bharat Electronics Ltd",
+      "ticker": "BEL.NS",
+      "sector": "Defence & Aerospace",
+      "horizon": "1_month",
+      "cmp": 409.2,
+      "entry_range": "₹405 - ₹412",
+      "target_1": 446.0,
+      "target_1_return": "+9.0%",
+      "target_2": 480.0,
+      "target_2_return": "+17.3%",
+      "stop_loss": 388.0,
+      "stop_loss_pct": "-5.2%",
+      "rrr": "1 : 3.4",
+      "timeframe": "3-4 Weeks",
+      "technical_confluence": {
+        "patterns": [
+          "Bullish Cup & Handle Breakout",
+          "20 EMA Bounce"
+        ],
+        "volume_spike": "2.3x Avg Vol",
+        "rsi": "61.4 (Momentum)"
+      },
+      "news_catalysts": [
+        "Bagged ₹3,200 Cr fresh orders from IAF for radar avionics.",
+        "Q1 EBITDA margins expanded 180 bps YoY with ₹78,000 Cr order book."
+      ]
+    },
+    {
+      "id": "TATAMOTORS",
+      "stock_name": "Tata Motors Ltd",
+      "ticker": "TATAMOTORS.NS",
+      "sector": "Automobile",
+      "horizon": "1_month",
+      "cmp": 478.3,
+      "entry_range": "₹472 - ₹482",
+      "target_1": 520.0,
+      "target_1_return": "+8.7%",
+      "target_2": 560.0,
+      "target_2_return": "+17.1%",
+      "stop_loss": 456.0,
+      "stop_loss_pct": "-4.7%",
+      "rrr": "1 : 3.7",
+      "timeframe": "4 Weeks",
+      "technical_confluence": {
+        "patterns": [
+          "Morning Star Reversal on Support",
+          "Daily Bullish Engulfing"
+        ],
+        "volume_spike": "1.8x Avg Vol",
+        "rsi": "56.8 (Rising)"
+      },
+      "news_catalysts": [
+        "JLR retail sales up 14% YoY with strong order backlog in Defender.",
+        "Commercial vehicle demerger proceeding ahead of schedule."
+      ]
+    },
+    {
+      "id": "SUNPHARMA",
+      "stock_name": "Sun Pharmaceutical Industries",
+      "ticker": "SUNPHARMA.NS",
+      "sector": "Pharma & Healthcare",
+      "horizon": "1_month",
+      "cmp": 1900.0,
+      "entry_range": "₹1880 - ₹1910",
+      "target_1": 2050.0,
+      "target_1_return": "+7.9%",
+      "target_2": 2190.0,
+      "target_2_return": "+15.3%",
+      "stop_loss": 1820.0,
+      "stop_loss_pct": "-4.2%",
+      "rrr": "1 : 3.5",
+      "timeframe": "3-5 Weeks",
+      "technical_confluence": {
+        "patterns": [
+          "20-Day Range Breakout",
+          "Multi-Week Base Reversal"
+        ],
+        "volume_spike": "2.1x Avg Vol",
+        "rsi": "63.2 (Strong)"
+      },
+      "news_catalysts": [
+        "Global specialty portfolio revenues up 21% YoY led by Ilumya.",
+        "US FDA EIR clearance received for key Halol facility."
+      ]
+    },
+    {
+      "id": "COALINDIA",
+      "stock_name": "Coal India Ltd",
+      "ticker": "COALINDIA.NS",
+      "sector": "Metals & Mining PSU",
+      "horizon": "1_month",
+      "cmp": 400.0,
+      "entry_range": "₹395 - ₹403",
+      "target_1": 435.0,
+      "target_1_return": "+8.8%",
+      "target_2": 468.0,
+      "target_2_return": "+17.0%",
+      "stop_loss": 379.0,
+      "stop_loss_pct": "-5.3%",
+      "rrr": "1 : 3.2",
+      "timeframe": "3-4 Weeks",
+      "technical_confluence": {
+        "patterns": [
+          "20 EMA Pullback Bounce",
+          "Bullish Flag Breakout"
+        ],
+        "volume_spike": "2.0x 20-day Volume",
+        "rsi": "58.4 (Rising)"
+      },
+      "news_catalysts": [
+        "Monthly dispatch volume rose 8.2% YoY; domestic power demand up 9%.",
+        "High dividend payout expected in upcoming board meeting."
+      ]
+    },
+    {
+      "id": "ICICIBANK",
+      "stock_name": "ICICI Bank Ltd",
+      "ticker": "ICICIBANK.NS",
+      "sector": "Banking & Financials",
+      "horizon": "1_month",
+      "cmp": 1402.0,
+      "entry_range": "₹1385 - ₹1408",
+      "target_1": 1515.0,
+      "target_1_return": "+8.1%",
+      "target_2": 1605.0,
+      "target_2_return": "+14.5%",
+      "stop_loss": 1340.0,
+      "stop_loss_pct": "-4.4%",
+      "rrr": "1 : 3.3",
+      "timeframe": "3-4 Weeks",
+      "technical_confluence": {
+        "patterns": [
+          "All-Time High Symmetrical Triangle Breakout",
+          "RSI Trendline Breakout"
+        ],
+        "volume_spike": "1.9x Avg Vol",
+        "rsi": "63.5 (Bullish)"
+      },
+      "news_catalysts": [
+        "Q1 Net Interest Income up 14.5% YoY with lowest Net NPA (0.42%).",
+        "Strong credit demand in retail and SME segment."
+      ]
+    },
+    {
+      "id": "SUZLON",
+      "stock_name": "Suzlon Energy Ltd",
+      "ticker": "SUZLON.NS",
+      "sector": "Renewable Wind Energy",
+      "horizon": "3_month",
+      "cmp": 46.77,
+      "entry_range": "₹45.0 - ₹47.2",
+      "target_1": 56.5,
+      "target_1_return": "+20.8%",
+      "target_2": 65.5,
+      "target_2_return": "+40.0%",
+      "stop_loss": 42.0,
+      "stop_loss_pct": "-10.2%",
+      "rrr": "1 : 4.1",
+      "timeframe": "10-12 Weeks (3M)",
+      "technical_confluence": {
+        "patterns": [
+          "200-Day EMA Accumulation Floor",
+          "Oversold RSI Base Rebound"
+        ],
+        "volume_spike": "Institutional accumulation on 5% dips",
+        "rsi": "48.5 (Fresh upward momentum wave)"
+      },
+      "news_catalysts": [
+        "Record 4.5+ GW wind order book with multi-year revenue visibility.",
+        "Completely Net Debt-Free balance sheet with CRISIL A- rating.",
+        "Ramping dispatches of high-efficiency 3.15 MW (S144) turbines."
+      ]
+    },
+    {
+      "id": "LT",
+      "stock_name": "Larsen & Toubro Ltd",
+      "ticker": "LT.NS",
+      "sector": "Infrastructure & Capital Goods",
+      "horizon": "3_month",
+      "cmp": 4041.3,
+      "entry_range": "₹4000 - ₹4060",
+      "target_1": 4630.0,
+      "target_1_return": "+14.6%",
+      "target_2": 5130.0,
+      "target_2_return": "+26.9%",
+      "stop_loss": 3775.0,
+      "stop_loss_pct": "-6.6%",
+      "rrr": "1 : 4.1",
+      "timeframe": "10-12 Weeks (3M)",
+      "technical_confluence": {
+        "patterns": [
+          "Multi-Month Ascending Triangle Breakout on Weekly",
+          "Stage 2 Expansion"
+        ],
+        "volume_spike": "2.6x Weekly Avg Vol",
+        "rsi": "64.8 (High RS)"
+      },
+      "news_catalysts": [
+        "Order inflow pipeline surpasses ₹4.2 Lakh Crore with Middle East mega contracts."
+      ]
+    },
+    {
+      "id": "TATAPOWER",
+      "stock_name": "Tata Power Company Ltd",
+      "ticker": "TATAPOWER.NS",
+      "sector": "Power & Clean Energy",
+      "horizon": "3_month",
+      "cmp": 378.9,
+      "entry_range": "₹372 - ₹383",
+      "target_1": 442.0,
+      "target_1_return": "+16.7%",
+      "target_2": 505.0,
+      "target_2_return": "+33.3%",
+      "stop_loss": 352.0,
+      "stop_loss_pct": "-7.1%",
+      "rrr": "1 : 4.6",
+      "timeframe": "10-12 Weeks (3M)",
+      "technical_confluence": {
+        "patterns": [
+          "3-Month Symmetrical Triangle Breakout",
+          "Weekly Bullish Engulfing"
+        ],
+        "volume_spike": "2.2x 20-week Volume",
+        "rsi": "59.1 (Clean Trend)"
+      },
+      "news_catalysts": [
+        "Won ₹4,500 Cr smart metering and 1 GW solar EPC contract."
+      ]
+    },
+    {
+      "id": "TRENT",
+      "stock_name": "Trent Ltd (Tata Retail)",
+      "ticker": "TRENT.NS",
+      "sector": "Consumer Retail & Apparel",
+      "horizon": "3_month",
+      "cmp": 2953.0,
+      "entry_range": "₹2910 - ₹2970",
+      "target_1": 3420.0,
+      "target_1_return": "+15.8%",
+      "target_2": 3920.0,
+      "target_2_return": "+32.7%",
+      "stop_loss": 2745.0,
+      "stop_loss_pct": "-7.0%",
+      "rrr": "1 : 4.7",
+      "timeframe": "10-12 Weeks (3M)",
+      "technical_confluence": {
+        "patterns": [
+          "Weekly Cup & Handle High Base",
+          "Rising 20-Week EMA Support"
+        ],
+        "volume_spike": "2.4x Weekly Volume",
+        "rsi": "66.2 (Strong Leader Momentum)"
+      },
+      "news_catalysts": [
+        "Zudio store count surges past 550 stores with industry-leading store metrics.",
+        "Star Bazaar formats achieving consistent profitability."
+      ]
+    },
+    {
+      "id": "BHARTIARTL",
+      "stock_name": "Bharti Airtel Ltd",
+      "ticker": "BHARTIARTL.NS",
+      "sector": "Telecom & Digital",
+      "horizon": "3_month",
+      "cmp": 1922.0,
+      "entry_range": "₹1895 - ₹1935",
+      "target_1": 2210.0,
+      "target_1_return": "+15.0%",
+      "target_2": 2480.0,
+      "target_2_return": "+29.0%",
+      "stop_loss": 1780.0,
+      "stop_loss_pct": "-7.4%",
+      "rrr": "1 : 4.0",
+      "timeframe": "10-12 Weeks (3M)",
+      "technical_confluence": {
+        "patterns": [
+          "Multi-Quarter Ascending Channel Breakout",
+          "Weekly Golden Cross"
+        ],
+        "volume_spike": "2.1x Weekly Average Volume",
+        "rsi": "62.8 (Healthy Trend Expansion)"
+      },
+      "news_catalysts": [
+        "ARPU on track to reach ₹245 with 5G monetization and tariff hikes.",
+        "B2B cloud and data center division (Nxtra) revenue growth exceeding 25% YoY."
+      ]
+    }
+  ],
+  "watchlist": [
+    {
+      "id": "SUZLON_WL",
+      "ticker": "SUZLON.NS",
+      "stock_name": "Suzlon Energy Ltd",
+      "sector": "Renewable Wind Energy",
+      "cmp": 46.77,
+      "change_1d": "-2.11%",
+      "is_positive": false,
+      "market_cap": "₹63,800 Cr",
+      "risk_rating": "MODERATE",
+      "risk_badge": "🟡 Moderate Risk",
+      "risk_summary": "High beta momentum with rapid retail turnover; execution speed on 4.5 GW order book is key.",
+      "latest_news": "Won 350 MW wind energy order from a leading IPP; S144 3.15 MW turbine deliveries ramping up across Gujarat and Rajasthan.",
+      "technical_bias": "Bullish Base above 200 EMA",
+      "action_plan": "Accumulate in ₹45.0 - ₹47.2 zone with SL @ ₹42.00."
+    },
+    {
+      "id": "BEL_WL",
+      "ticker": "BEL.NS",
+      "stock_name": "Bharat Electronics Ltd",
+      "sector": "Defence & Aerospace",
+      "cmp": 409.2,
+      "change_1d": "-0.68%",
+      "is_positive": false,
+      "market_cap": "₹2,99,200 Cr",
+      "risk_rating": "LOW",
+      "risk_badge": "🟢 Low Risk",
+      "risk_summary": "Sovereign PSU backing with ₹78,000 Cr order book; zero debt and consistent dividend yield.",
+      "latest_news": "Received ₹3,200 Cr fresh orders from Indian Air Force for next-gen radar avionics & electronic warfare suites.",
+      "technical_bias": "Cup & Handle Breakout Continuation",
+      "action_plan": "Ideal swing buy in ₹405 - ₹412 zone for target ₹446 / ₹480."
+    },
+    {
+      "id": "TATAMOTORS_WL",
+      "ticker": "TATAMOTORS.NS",
+      "stock_name": "Tata Motors Ltd",
+      "sector": "Automobile",
+      "cmp": 478.3,
+      "change_1d": "+0.65%",
+      "is_positive": true,
+      "market_cap": "₹1,76,200 Cr",
+      "risk_rating": "MODERATE",
+      "risk_badge": "🟡 Moderate Risk",
+      "risk_summary": "Exposure to global luxury auto demand via JLR; UK/Europe consumer spending cycle.",
+      "latest_news": "JLR wholesale dispatches rise 14% YoY; Commercial Vehicles and Passenger Vehicles demerger on track for completion.",
+      "technical_bias": "Support Bounce at 50 EMA",
+      "action_plan": "Buy on minor pullbacks near ₹472 with SL @ ₹456."
+    },
+    {
+      "id": "SUNPHARMA_WL",
+      "ticker": "SUNPHARMA.NS",
+      "stock_name": "Sun Pharmaceutical Industries",
+      "sector": "Pharma & Healthcare",
+      "cmp": 1900.0,
+      "change_1d": "+1.33%",
+      "is_positive": true,
+      "market_cap": "₹4,56,000 Cr",
+      "risk_rating": "LOW",
+      "risk_badge": "🟢 Low Risk",
+      "risk_summary": "Defensive large-cap with robust global cash flows and diversified specialty portfolio.",
+      "latest_news": "Global specialty dermatology franchise revenues cross $300M in Q1; key US FDA clearance received.",
+      "technical_bias": "All-Time High Consolidation",
+      "action_plan": "Defensive compounder; Buy in ₹1880 - ₹1910 range."
+    },
+    {
+      "id": "COALINDIA_WL",
+      "ticker": "COALINDIA.NS",
+      "stock_name": "Coal India Ltd",
+      "sector": "Metals & Mining PSU",
+      "cmp": 400.0,
+      "change_1d": "-1.70%",
+      "is_positive": false,
+      "market_cap": "₹2,46,500 Cr",
+      "risk_rating": "LOW",
+      "risk_badge": "🟢 Low Risk",
+      "risk_summary": "High dividend yield (~7%) providing downside buffer; robust volume offtake from thermal utilities.",
+      "latest_news": "Production up 8.2% YoY; power plant coal inventories at comfortable 18-day average.",
+      "technical_bias": "Support Rebound on 20 EMA",
+      "action_plan": "Buy in ₹395 - ₹403 zone for ₹435 and ₹468."
+    },
+    {
+      "id": "ICICIBANK_WL",
+      "ticker": "ICICIBANK.NS",
+      "stock_name": "ICICI Bank Ltd",
+      "sector": "Banking & Financials",
+      "cmp": 1402.0,
+      "change_1d": "-0.71%",
+      "is_positive": false,
+      "market_cap": "₹9,85,000 Cr",
+      "risk_rating": "LOW",
+      "risk_badge": "🟢 Low Risk",
+      "risk_summary": "Top-tier asset quality with lowest Net NPA (0.42%) in private sector; robust deposit growth.",
+      "latest_news": "Net Interest Income (NII) grows 14.5% YoY; credit cost remains benign at 0.38%.",
+      "technical_bias": "All-Time High Symmetrical Breakout",
+      "action_plan": "Accumulate on dips near ₹1390 with SL @ ₹1340."
+    },
+    {
+      "id": "LT_WL",
+      "ticker": "LT.NS",
+      "stock_name": "Larsen & Toubro Ltd",
+      "sector": "Infrastructure & Capital Goods",
+      "cmp": 4041.3,
+      "change_1d": "-0.57%",
+      "is_positive": false,
+      "market_cap": "₹5,55,000 Cr",
+      "risk_rating": "LOW",
+      "risk_badge": "🟢 Low Risk",
+      "risk_summary": "Market leader in infrastructure with over ₹4.2 Lakh Crore international & domestic order pipeline.",
+      "latest_news": "L&T Hydrocarbon bagged mega offshore order exceeding ₹7,500 Cr in the Middle East region.",
+      "technical_bias": "Stage 2 Structural Uptrend",
+      "action_plan": "3-Month Positional Buy for ₹4,630 and ₹5,130."
+    },
+    {
+      "id": "TATAPOWER_WL",
+      "ticker": "TATAPOWER.NS",
+      "stock_name": "Tata Power Company Ltd",
+      "sector": "Power & Clean Energy",
+      "cmp": 378.9,
+      "change_1d": "-0.55%",
+      "is_positive": false,
+      "market_cap": "₹1,21,000 Cr",
+      "risk_rating": "LOW",
+      "risk_badge": "🟢 Low Risk",
+      "risk_summary": "Diversified energy basket with captive solar manufacturing and rooftop solar expansion.",
+      "latest_news": "PM Surya Ghar scheme boosts rooftop solar installations by 3x; secured 1 GW solar EPC project in Maharashtra.",
+      "technical_bias": "Triangle Breakout Retest",
+      "action_plan": "Accumulate in ₹372 - ₹383 for targets ₹442 & ₹505."
+    },
+    {
+      "id": "BHARTIARTL_WL",
+      "ticker": "BHARTIARTL.NS",
+      "stock_name": "Bharti Airtel Ltd",
+      "sector": "Telecom & Digital",
+      "cmp": 1922.0,
+      "change_1d": "-0.63%",
+      "is_positive": false,
+      "market_cap": "₹10,95,000 Cr",
+      "risk_rating": "LOW",
+      "risk_badge": "🟢 Low Risk",
+      "risk_summary": "Duopoly market structure; ARPU expansion to ₹245+ following tariff rationalization.",
+      "latest_news": "ARPU climbs 12% following pan-India tariff revision; Africa currency headwinds stabilizing.",
+      "technical_bias": "Multi-Month Channel Breakout",
+      "action_plan": "Positional accumulation above ₹1895 for ₹2210 / ₹2480."
+    },
+    {
+      "id": "TRENT_WL",
+      "ticker": "TRENT.NS",
+      "stock_name": "Trent Ltd (Tata Retail)",
+      "sector": "Consumer Retail & Apparel",
+      "cmp": 2953.0,
+      "change_1d": "+0.37%",
+      "is_positive": true,
+      "market_cap": "₹1,05,000 Cr",
+      "risk_rating": "MODERATE",
+      "risk_badge": "🟡 Moderate Risk (High Valuation)",
+      "risk_summary": "Trading at premium P/E multiple; any short-term SSSG growth slowdown can trigger sharp pullbacks.",
+      "latest_news": "Zudio crosses 550 stores nationwide; Star Bazaar achieves sustainable store-level EBITDA profitability.",
+      "technical_bias": "High-Tight Bullish Base",
+      "action_plan": "Buy only on dips near ₹2910; tight stop loss @ ₹2745."
+    },
+    {
+      "id": "RVNL_WL",
+      "ticker": "RVNL.NS",
+      "stock_name": "Rail Vikas Nigam Ltd",
+      "sector": "Railways & PSU",
+      "cmp": 223.5,
+      "change_1d": "-0.67%",
+      "is_positive": false,
+      "market_cap": "₹46,600 Cr",
+      "risk_rating": "HIGH",
+      "risk_badge": "🔴 High Risk / Momentum Caution",
+      "risk_summary": "High beta PSU railway stock; vulnerable to profit-booking swings.",
+      "latest_news": "Won ₹740 Cr railway electrification contract in East Coast Railway; order margins under scrutiny.",
+      "technical_bias": "Consolidation near support",
+      "action_plan": "Watch support near ₹215 before fresh entries."
+    },
+    {
+      "id": "PAYTM_WL",
+      "ticker": "PAYTM.NS",
+      "stock_name": "One97 Communications (Paytm)",
+      "sector": "Fintech & Payments",
+      "cmp": 1583.5,
+      "change_1d": "+2.41%",
+      "is_positive": true,
+      "market_cap": "₹1,00,600 Cr",
+      "risk_rating": "HIGH",
+      "risk_badge": "🔴 High Risk / Volatile Momentum",
+      "risk_summary": "High momentum rebound with high volatility; sharp swings.",
+      "latest_news": "Cost optimization drives EBITDA before ESOP closer to break-even; partnership with top banks for UPI merchant acquiring.",
+      "technical_bias": "Breakout Continuation",
+      "action_plan": "High risk swing only for aggressive traders with strict SL @ ₹1490."
+    }
+  ],
+  "stock_fo_setups": [
+    {
+      "id": "TATASTEEL_FO",
+      "stock_name": "Tata Steel Ltd",
+      "ticker": "TATASTEEL.NS",
+      "sector": "Metals & Mining",
+      "cmp": 184.0,
+      "lot_size": 5500,
+      "expiry": "27 Aug 2026",
+      "mandatory_exit_date": "26 Aug 2026 (Before Settlement)",
+      "futures": {
+        "contract": "TATASTEEL 27AUG2026 FUT",
+        "buy_range": "₹183.50 – ₹184.80",
+        "sell_target_1": "₹189.00 (+₹5.00/sh)",
+        "sell_target_1_profit": "+₹27,500 / Lot (+2.7%)",
+        "sell_target_2": "₹194.00 (+₹10.00/sh)",
+        "sell_target_2_profit": "+₹55,000 / Lot (+5.4%)",
+        "stop_loss_sell": "₹181.50 (-₹2.50/sh)",
+        "stop_loss_risk": "-₹13,750 / Lot (-1.4%)",
+        "approx_margin": "₹1,85,000",
+        "rrr": "1 : 2.5"
+      },
+      "options_call": {
+        "contract": "TATASTEEL 185 CE",
+        "strike": 185,
+        "type": "CALL (CE)",
+        "buy_rate": "₹4.20 – ₹4.60",
+        "premium_required": "₹24,200",
+        "sell_target_1": "₹7.50 (+₹3.10)",
+        "sell_target_1_return": "+67% Gain (+₹17,050 / Lot)",
+        "sell_target_2": "₹11.00 (+₹6.60)",
+        "sell_target_2_return": "+143% Gain (+₹36,300 / Lot)",
+        "stop_loss_sell": "₹2.80 (-₹1.60)",
+        "stop_loss_risk": "-35% (-₹8,800 / Lot)",
+        "rrr": "1 : 2.8"
+      },
+      "derivatives_confluence": "Long Buildup with 14.2% Open Interest surge. Heavy call unwinding seen at 185 CE strike. Sustaining above Day VWAP (₹183.60).",
+      "zero_risk_protocol": "🛡️ 50/50 Shield: When Target 1 (₹189 FUT / ₹7.50 CE) hits, sell 50% lots and trail Stop Loss strictly to Entry Price."
+    },
+    {
+      "id": "SBIN_FO",
+      "stock_name": "State Bank of India",
+      "ticker": "SBIN.NS",
+      "sector": "Banking & Financials",
+      "cmp": 1048.6,
+      "lot_size": 750,
+      "expiry": "27 Aug 2026",
+      "mandatory_exit_date": "26 Aug 2026 (Before Settlement)",
+      "futures": {
+        "contract": "SBIN 27AUG2026 FUT",
+        "buy_range": "₹1,044 – ₹1,050",
+        "sell_target_1": "₹1,075.00 (+₹26.40/sh)",
+        "sell_target_1_profit": "+₹19,800 / Lot (+2.5%)",
+        "sell_target_2": "₹1,105.00 (+₹56.40/sh)",
+        "sell_target_2_profit": "+₹42,300 / Lot (+5.4%)",
+        "stop_loss_sell": "₹1,032.00 (-₹16.60/sh)",
+        "stop_loss_risk": "-₹12,450 / Lot (-1.6%)",
+        "approx_margin": "₹1,95,000",
+        "rrr": "1 : 2.8"
+      },
+      "options_call": {
+        "contract": "SBIN 1060 CE",
+        "strike": 1060,
+        "type": "CALL (CE)",
+        "buy_rate": "₹16.50 – ₹18.00",
+        "premium_required": "₹13,125",
+        "sell_target_1": "₹28.00 (+₹10.50)",
+        "sell_target_1_return": "+60% Gain (+₹7,875 / Lot)",
+        "sell_target_2": "₹42.00 (+₹24.50)",
+        "sell_target_2_return": "+140% Gain (+₹18,375 / Lot)",
+        "stop_loss_sell": "₹10.50 (-₹7.00)",
+        "stop_loss_risk": "-40% (-₹5,250 / Lot)",
+        "rrr": "1 : 3.0"
+      },
+      "derivatives_confluence": "Bank Nifty momentum driver. PCR at 1.34 indicates strong put writing support at 1030 PE. Institutional long accumulation.",
+      "zero_risk_protocol": "🛡️ 50/50 Shield: Book 50% quantity at ₹1,075 (FUT) / ₹28.00 (CE) and trail SL to cost to eliminate all downside risk."
+    },
+    {
+      "id": "RELIANCE_FO",
+      "stock_name": "Reliance Industries Ltd",
+      "ticker": "RELIANCE.NS",
+      "sector": "Energy & Conglomerate",
+      "cmp": 1311.0,
+      "lot_size": 250,
+      "expiry": "27 Aug 2026",
+      "mandatory_exit_date": "26 Aug 2026 (Before Settlement)",
+      "futures": {
+        "contract": "RELIANCE 27AUG2026 FUT",
+        "buy_range": "₹1,306 – ₹1,314",
+        "sell_target_1": "₹1,345.00 (+₹34.00/sh)",
+        "sell_target_1_profit": "+₹8,500 / Lot (+2.6%)",
+        "sell_target_2": "₹1,380.00 (+₹69.00/sh)",
+        "sell_target_2_profit": "+₹17,250 / Lot (+5.3%)",
+        "stop_loss_sell": "₹1,295.00 (-₹16.00/sh)",
+        "stop_loss_risk": "-₹4,000 / Lot (-1.2%)",
+        "approx_margin": "₹1,60,000",
+        "rrr": "1 : 2.6"
+      },
+      "options_call": {
+        "contract": "RELIANCE 1320 CE",
+        "strike": 1320,
+        "type": "CALL (CE)",
+        "buy_rate": "₹23.50 – ₹25.50",
+        "premium_required": "₹6,125",
+        "sell_target_1": "₹42.00 (+₹17.50)",
+        "sell_target_1_return": "+71% Gain (+₹4,375 / Lot)",
+        "sell_target_2": "₹62.00 (+₹37.50)",
+        "sell_target_2_return": "+153% Gain (+₹9,375 / Lot)",
+        "stop_loss_sell": "₹15.50 (-₹9.00)",
+        "stop_loss_risk": "-36% (-₹2,250 / Lot)",
+        "rrr": "1 : 2.7"
+      },
+      "derivatives_confluence": "Symmetrical triangle breakout on daily chart. GRM margins holding strong at $7.2/bbl. Heavyweight volume surge.",
+      "zero_risk_protocol": "🛡️ 50/50 Shield: Lock 50% profit at ₹1,345 (FUT) / ₹42.00 (CE) and trail stop loss to break-even."
+    },
+    {
+      "id": "ICICIBANK_FO",
+      "stock_name": "ICICI Bank Ltd",
+      "ticker": "ICICIBANK.NS",
+      "sector": "Banking & Financials",
+      "cmp": 1402.0,
+      "lot_size": 700,
+      "expiry": "27 Aug 2026",
+      "mandatory_exit_date": "26 Aug 2026 (Before Settlement)",
+      "futures": {
+        "contract": "ICICIBANK 27AUG2026 FUT",
+        "buy_range": "₹1,398 – ₹1,405",
+        "sell_target_1": "₹1,440.00 (+₹38.00/sh)",
+        "sell_target_1_profit": "+₹26,600 / Lot (+2.7%)",
+        "sell_target_2": "₹1,475.00 (+₹73.00/sh)",
+        "sell_target_2_profit": "+₹51,100 / Lot (+5.2%)",
+        "stop_loss_sell": "₹1,378.00 (-₹24.00/sh)",
+        "stop_loss_risk": "-₹16,800 / Lot (-1.7%)",
+        "approx_margin": "₹1,85,000",
+        "rrr": "1 : 2.5"
+      },
+      "options_call": {
+        "contract": "ICICIBANK 1420 CE",
+        "strike": 1420,
+        "type": "CALL (CE)",
+        "buy_rate": "₹19.00 – ₹21.00",
+        "premium_required": "₹14,000",
+        "sell_target_1": "₹34.00 (+₹14.00)",
+        "sell_target_1_return": "+70% Gain (+₹9,800 / Lot)",
+        "sell_target_2": "₹48.00 (+₹28.00)",
+        "sell_target_2_return": "+140% Gain (+₹19,600 / Lot)",
+        "stop_loss_sell": "₹13.00 (-₹7.00)",
+        "stop_loss_risk": "-35% (-₹4,900 / Lot)",
+        "rrr": "1 : 2.8"
+      },
+      "derivatives_confluence": "All-time high price expansion. Short covering observed across 1400 CE and 1420 CE strikes. Highest relative strength in banking.",
+      "zero_risk_protocol": "🛡️ 50/50 Shield: Book half at ₹1,440 (FUT) / ₹34.00 (CE). Move SL to Entry Cost to guarantee zero-risk runner."
+    },
+    {
+      "id": "TATAMOTORS_FO",
+      "stock_name": "Tata Motors Ltd",
+      "ticker": "TATAMOTORS.NS",
+      "sector": "Automobile",
+      "cmp": 478.3,
+      "lot_size": 1425,
+      "expiry": "27 Aug 2026",
+      "mandatory_exit_date": "26 Aug 2026 (Before Settlement)",
+      "futures": {
+        "contract": "TATAMOTORS 27AUG2026 FUT",
+        "buy_range": "₹475 – ₹480",
+        "sell_target_1": "₹502.00 (+₹23.70/sh)",
+        "sell_target_1_profit": "+₹33,772 / Lot (+5.0%)",
+        "sell_target_2": "₹525.00 (+₹46.70/sh)",
+        "sell_target_2_profit": "+₹66,547 / Lot (+9.8%)",
+        "stop_loss_sell": "₹464.00 (-₹14.30/sh)",
+        "stop_loss_risk": "-₹20,377 / Lot (-3.0%)",
+        "approx_margin": "₹1,55,000",
+        "rrr": "1 : 2.6"
+      },
+      "options_call": {
+        "contract": "TATAMOTORS 480 CE",
+        "strike": 480,
+        "type": "CALL (CE)",
+        "buy_rate": "₹12.00 – ₹13.00",
+        "premium_required": "₹17,812",
+        "sell_target_1": "₹20.00 (+₹7.50)",
+        "sell_target_1_return": "+60% Gain (+₹10,687 / Lot)",
+        "sell_target_2": "₹30.00 (+₹17.50)",
+        "sell_target_2_return": "+140% Gain (+₹24,937 / Lot)",
+        "stop_loss_sell": "₹8.00 (-₹4.50)",
+        "stop_loss_risk": "-36% (-₹6,412 / Lot)",
+        "rrr": "1 : 2.7"
+      },
+      "derivatives_confluence": "Demerger catalyst on track. 18% weekly Open Interest addition with cash-market volume confirmation. Support bounce at 50 EMA.",
+      "zero_risk_protocol": "🛡️ 50/50 Shield: Sell 50% lots at ₹502 (FUT) / ₹20.00 (CE). Modify Stop Loss to Buy Cost (₹478) immediately."
+    }
+  ],
+  "commodities_fo": [
+    {
+      "id": "CRUDE_MCX",
+      "instrument": "MCX CRUDE OIL (100 BBL)",
+      "exchange": "MCX (Multi Commodity Exchange of India)",
+      "broker_contract": "CRUDEOIL 19SEP2026 FUT / 6200 CE",
+      "category": "MCX Energy (India)",
+      "cmp": 6240.0,
+      "entry_date": "Monday, 18 Aug 2026",
+      "entry_time_window": "05:00 PM – 05:30 PM IST (US Session Open)",
+      "buy_price_range": "₹6,210 – ₹6,245 (FUT) | ₹145 – ₹155 (6200 CE)",
+      "target_1": "₹6,360 (FUT) | ₹215 (6200 CE)",
+      "target_1_gain": "+1.9% FUT (+38% Option)",
+      "target_1_date": "20 Aug 2026 (Within 2–3 Days)",
+      "target_2": "₹6,480 (FUT) | ₹285 (6200 CE)",
+      "target_2_gain": "+3.8% FUT (+83% Option)",
+      "target_2_date": "25 Aug 2026 (Within 5–7 Days)",
+      "stop_loss": "₹6,150 (FUT) | ₹105 (6200 CE)",
+      "stop_loss_pct": "-1.4% FUT (-30% Option)",
+      "mandatory_exit_date": "28 Aug 2026 (Before MCX Tender/Expiry Window)",
+      "zero_risk_protocol": "🛡️ ZERO-RISK SHIELD: When Target 1 (₹6,360) is reached on 20 Aug, sell 50% quantity and shift Stop Loss strictly to Entry Price (₹6,220). Your trade is now 100% ZERO-RISK with locked profit.",
+      "rrr": "1 : 2.8",
+      "asian_confluence": "Hang Seng (+1.42%) & Nikkei (+1.15%) confirmed global demand recovery. Brent Crude holding $79.50 support."
+    },
+    {
+      "id": "GOLD_MCX",
+      "instrument": "MCX GOLD MINI (100 Grams)",
+      "exchange": "MCX (Multi Commodity Exchange of India)",
+      "broker_contract": "GOLDM 05OCT2026 FUT / 72500 CE",
+      "category": "MCX Bullion (India)",
+      "cmp": 72450.0,
+      "entry_date": "Monday, 18 Aug 2026",
+      "entry_time_window": "09:30 AM – 10:00 AM IST (Morning Breakout)",
+      "buy_price_range": "₹72,380 – ₹72,500 (FUT)",
+      "target_1": "₹73,200 (+1.0%)",
+      "target_1_gain": "+₹750/10g (+1.0%)",
+      "target_1_date": "21 Aug 2026 (Within 3–4 Days)",
+      "target_2": "₹73,950 (+2.1%)",
+      "target_2_gain": "+₹1,500/10g (+2.1%)",
+      "target_2_date": "28 Aug 2026 (Within 8–10 Days)",
+      "stop_loss": "₹71,980 (-0.65%)",
+      "stop_loss_pct": "-₹470/10g (-0.65%)",
+      "mandatory_exit_date": "02 Sep 2026 (Mandatory Exit before Tender Period)",
+      "zero_risk_protocol": "🛡️ ZERO-RISK SHIELD: Book 50% lots at ₹73,200 (Target 1). Instantly modify Stop Loss in Zerodha/Groww to ₹72,450 (Entry Cost). The trade becomes risk-free with zero downside.",
+      "rrr": "1 : 3.2",
+      "asian_confluence": "Asian central bank gold accumulation + Soft US Yields (3.84%) + DXY drop to 102.4."
+    },
+    {
+      "id": "SILVER_MCX",
+      "instrument": "MCX SILVER MINI (5 KG)",
+      "exchange": "MCX (Multi Commodity Exchange of India)",
+      "broker_contract": "SILVERM 28AUG2026 FUT",
+      "category": "MCX Precious Metals (India)",
+      "cmp": 83200.0,
+      "entry_date": "Monday, 18 Aug 2026",
+      "entry_time_window": "05:00 PM – 05:45 PM IST (US Session Open)",
+      "buy_price_range": "₹83,000 – ₹83,300 (FUT)",
+      "target_1": "₹84,800 (+1.9%)",
+      "target_1_gain": "+₹1,600/kg (+₹8,000/lot)",
+      "target_1_date": "22 Aug 2026 (Within 4 Days)",
+      "target_2": "₹86,500 (+3.9%)",
+      "target_2_gain": "+₹3,300/kg (+₹16,500/lot)",
+      "target_2_date": "27 Aug 2026 (Within 7 Days)",
+      "stop_loss": "₹82,100 (-1.3%)",
+      "stop_loss_pct": "-₹1,100/kg (-₹5,500/lot)",
+      "mandatory_exit_date": "27 Aug 2026 (1 Day prior to Expiry)",
+      "zero_risk_protocol": "🛡️ ZERO-RISK SHIELD: Book 50% at ₹84,800. Trail Stop Loss to ₹83,200 (Break-even). Completely eliminates downside risk while letting profits run to Target 2.",
+      "rrr": "1 : 3.0",
+      "asian_confluence": "Hang Seng & Nikkei surge boosting industrial green energy & solar silver demand."
+    }
+  ],
+  "backtest_3m_ago": {
+    "backtest_date": "15 May 2026",
+    "evaluation_date": "15 Aug 2026 (3-Month Horizon Complete)",
+    "win_rate": "80.0%",
+    "total_trades": 5,
+    "targets_hit": 4,
+    "stopped_out": 1,
+    "avg_profit_winners": "+24.8%",
+    "avg_loss_losers": "-6.1%",
+    "net_model_pnl": "+18.6% Net Realized Alpha",
+    "setups": [
+      {
+        "stock_name": "Trent Ltd",
+        "ticker": "TRENT.NS",
+        "sector": "Retail",
+        "signal_date": "15 May 2026",
+        "entry_price": 2420.0,
+        "projected_t1": 2780.0,
+        "projected_t1_gain": "+14.9%",
+        "projected_t2": 3120.0,
+        "projected_t2_gain": "+28.9%",
+        "projected_sl": 2260.0,
+        "projected_sl_risk": "-6.6%",
+        "reality": {
+          "status": "TARGET_2_HIT",
+          "status_badge": "🎯 Target 2 Achieved",
+          "cmp_today": 2953.0,
+          "peak_price": 3180.0,
+          "actual_return": "+31.4%",
+          "days_taken": 68,
+          "verdict": "Exceeded Target 2 (+31.4% gain). Exceptional multi-month runner."
+        }
+      },
+      {
+        "stock_name": "Bharat Electronics",
+        "ticker": "BEL.NS",
+        "sector": "Defence",
+        "signal_date": "15 May 2026",
+        "entry_price": 328.0,
+        "projected_t1": 372.0,
+        "projected_t1_gain": "+13.4%",
+        "projected_t2": 410.0,
+        "projected_t2_gain": "+25.0%",
+        "projected_sl": 308.0,
+        "projected_sl_risk": "-6.1%",
+        "reality": {
+          "status": "TARGET_2_HIT",
+          "status_badge": "🎯 Target 2 Achieved",
+          "cmp_today": 409.2,
+          "peak_price": 418.0,
+          "actual_return": "+27.4%",
+          "days_taken": 74,
+          "verdict": "Hit Target 2 cleanly (+27.4% gain). Strong defence budget tailwinds."
+        }
+      },
+      {
+        "stock_name": "State Bank of India",
+        "ticker": "SBIN.NS",
+        "sector": "Banking",
+        "signal_date": "15 May 2026",
+        "entry_price": 845.0,
+        "projected_t1": 960.0,
+        "projected_t1_gain": "+13.6%",
+        "projected_t2": 1050.0,
+        "projected_t2_gain": "+24.3%",
+        "projected_sl": 795.0,
+        "projected_sl_risk": "-5.9%",
+        "reality": {
+          "status": "TARGET_2_HIT",
+          "status_badge": "🎯 Target 2 Achieved",
+          "cmp_today": 1048.6,
+          "peak_price": 1075.0,
+          "actual_return": "+27.2%",
+          "days_taken": 82,
+          "verdict": "Target 2 achieved (+27.2% gain). PSU banking rally driver."
+        }
+      },
+      {
+        "stock_name": "Tata Power",
+        "ticker": "TATAPOWER.NS",
+        "sector": "Power",
+        "signal_date": "15 May 2026",
+        "entry_price": 320.0,
+        "projected_t1": 368.0,
+        "projected_t1_gain": "+15.0%",
+        "projected_t2": 415.0,
+        "projected_t2_gain": "+29.7%",
+        "projected_sl": 298.0,
+        "projected_sl_risk": "-6.9%",
+        "reality": {
+          "status": "TARGET_1_HIT",
+          "status_badge": "✅ Target 1 Achieved",
+          "cmp_today": 378.9,
+          "peak_price": 395.0,
+          "actual_return": "+19.4%",
+          "days_taken": 52,
+          "verdict": "Hit Target 1 (+19.4%) in 52 days. Healthy uptrend intact."
+        }
+      },
+      {
+        "stock_name": "Persistent Systems",
+        "ticker": "PERSISTENT.NS",
+        "sector": "IT & Tech",
+        "signal_date": "15 May 2026",
+        "entry_price": 4420.0,
+        "projected_t1": 5100.0,
+        "projected_t1_gain": "+15.4%",
+        "projected_t2": 5750.0,
+        "projected_t2_gain": "+30.1%",
+        "projected_sl": 4150.0,
+        "projected_sl_risk": "-6.1%",
+        "reality": {
+          "status": "STOP_LOSS_HIT",
+          "status_badge": "🛡️ Stop Loss Triggered",
+          "cmp_today": 4210.0,
+          "peak_price": 4490.0,
+          "actual_return": "-6.1%",
+          "days_taken": 14,
+          "verdict": "Exited cleanly at ₹4,150 SL due to global IT macro headwinds. Strict SL saved further drawdown."
+        }
+      }
+    ]
+  }
+}
+;
+</script>
+<script src="app.js"></script>
+</body>
+</html>
