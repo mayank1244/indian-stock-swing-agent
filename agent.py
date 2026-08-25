@@ -17,6 +17,7 @@ if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
 
 from email_notifier import send_daily_email
 from whatsapp_notifier import send_whatsapp_dispatch, build_risk_alert_message, generate_whatsapp_click_url
+from update_live_data import update_live_prices
 
 BASE_DIR = Path(__file__).parent
 DATA_FILE = BASE_DIR / "web" / "data" / "latest.json"
@@ -26,6 +27,12 @@ def run_daily_agent_cycle():
     print(" 🚀 SWINGPULSE AUTONOMOUS AGENT RUNNING (5-STOCK RECALIBRATION)")
     print(f" Timestamp: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*70)
+
+    # 0. Live NSE price update & technical recalibration
+    try:
+        update_live_prices()
+    except Exception as e:
+        print(f"[WARNING] Live price fetch encountered error: {e}")
 
     if not DATA_FILE.exists():
         print(f"[ERROR] Data file not found: {DATA_FILE}")
